@@ -11,7 +11,7 @@ import { onSilentRefresh } from '../module/jsonWebToken';
 import { getCookie } from '../module/cookies';
 import { useAppDispatch } from '../ducks/store';
 import { initLoginIdentity } from '../ducks/loginIdentitySlice';
-import { withHead } from '../components/layout/withHead';
+
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
@@ -32,7 +32,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   }, []);
 
   return (
-    <PersistGate persistor={persistor} loading={<LoadingIndicator />}>
+    <PersistGate persistor={persistor} loading={null}>
       {Component.getLayout ? (
         getLayout(<Component {...pageProps} />)
       ) : (

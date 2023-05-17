@@ -10,7 +10,7 @@ Todo 3. 슬라이드가 자동으로 넘어가는 시간을 설정하고자 하�
 * <------  사용하시기 전에 꼭 읽어주세요! ------> *
 */
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import Flicking from '@egjs/react-flicking';
 import { AutoPlay } from '@egjs/flicking-plugins';
@@ -35,6 +35,8 @@ export const SlideBanner: React.FC<SlideBannerProps> = ({
   pagination,
   maxHeight,
 }) => {
+  const [mouse, setMouse] = useState({ mouseDown: 0, mouseUp: 0, total: 0 });
+  const [onMouse, setOnMouse] = useState(false);
   const router = useRouter();
   const bannerClickEvent = (bannerLink: string): void => {
     router.push(bannerLink);
@@ -49,37 +51,46 @@ export const SlideBanner: React.FC<SlideBannerProps> = ({
       stopOnHover: true,
     }),
   ];
-
-  const flickingOnChange = (e) => {
-    setCurrendIdx(e.index);
-  };
-
+  const onMouseDownHandle = useCallback(
+    (e) => {
+      setMouse({ ...mouse, mouseDown: e.pageX });
+      setOnMouse(true);
+    },
+    [onMouse, mouse],
+  );
+  const onMouseUpHandle = useCallback((e) => {}, []);
+  const onMouseMoveHandle = useCallback(
+    (e) => {
+      if (!onMouse) {
+        return;
+      }
+      e.preventDefault();
+      setMouse({ ...mouse, mouseUp: e.pageX });
+    },
+    [onMouse, mouse],
+  );
   return (
-    <div className="slidebanner-container relative overflow-hidden cursor-pointer">
-      <Flicking
-        className={`[&>div]:flex ${maxHeight} min-w-[360px]`}
-        plugins={plugins}
-        circular={true}
-        horizontal={true}
-        onChanged={flickingOnChange}
-      >
-        {bannerCont.map((el: BannerContType, idx: number) => {
-          return (
-            <div
-              className={`sildebanner-background w-screen max-w-[460px] min-w-[360px] flex-[0_0_auto] flex flex-col justify-center items-center relative`}
-              key={idx}
-              onClick={(_) => bannerClickEvent(el.bannerLink)}
-            >
-              <Image
-                src={el.bgImgUrl}
-                alt="slide image"
-                width="800"
-                height="500"
-              />
-            </div>
-          );
-        })}
-      </Flicking>
+    <div className="slidebanner-container relative overflow-hidden   cursor-pointer flex">
+      {bannerCont.map((el: BannerContType, idx: number) => {
+        return (
+          <div
+            className={`sildebanner-background w-screen max-w-[460px] min-w-[360px] flex-[0_0_auto] flex flex-col justify-center items-center relative`}
+            key={idx}
+            onClick={(_) => bannerClickEvent(el.bannerLink)}
+          >
+            <Image
+              src={el.bgImgUrl}
+              alt="slide image"
+              width="800"
+              height="500"
+              onMouseDown={onMouseDownHandle}
+              onMouseUp={onMouseUpHandle}
+              onMouseMove={onMouseMoveHandle}
+            />
+          </div>
+        );
+      })}
+
       {pagination && (
         <div className="slidebanner-pagination absolute right-2.5 top-2.5 bg-black/50 text-white text-center tracking-wider text-xs min-w-[40pdx] p1y-0.5 pt-[2px] pr-1 pl-1.5 rounded-xl flex justify-between ">
           <span>{currendIdx + 1}</span>

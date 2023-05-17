@@ -12,6 +12,7 @@ interface HabitElementProps {
   habitId: number;
   isBooked: boolean;
   hostUserId?: number;
+  verify?: boolean;
 }
 
 interface HabitWrapperProps {
@@ -28,6 +29,7 @@ export const HabitElement: React.FC<HabitElementProps> = ({
   thumbImgUrl,
   isBooked,
   hostUserId,
+  verify,
 }) => {
   const router = useRouter();
   const { userId } = useAppSelector((state) => state.loginIdentity);
@@ -55,7 +57,9 @@ export const HabitElement: React.FC<HabitElementProps> = ({
     }
   }, [isBooked]);
   const goDetailPageHandle = () => {
-    router.push(`/habit/detail/${habitId}`);
+    if (!verify) {
+      router.push(`/habit/detail/${habitId}`);
+    }
   };
   return (
     <div
